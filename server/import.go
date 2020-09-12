@@ -53,7 +53,7 @@ func importFile(reader io.Reader, config interface{}, filename string) error {
 		return err
 	}
 
-	if err := json.Unmarshal(data, config); err != nil {
+	if err := json.Unmarshal([]byte(utf16ToString(data)), config); err != nil {
 		logrus.WithError(err).WithField("file", filename).Error("Error unmarshalling configuration file JSON on import")
 		return err
 	}
