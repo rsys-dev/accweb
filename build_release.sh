@@ -12,6 +12,16 @@ DIR="accweb_$VERSION"
 mkdir "$DIR"
 
 # set webui version
+function Cleanup {
+  # reset webui version
+  sed -i "s/$VERSION/{VERSION}/" public/src/components/end.vue
+  rm -r $DIR
+
+  echo "done"
+}
+
+trap Cleanup EXIT
+trap Cleanup INT
 sed -i "s/{VERSION}/$VERSION/" public/src/components/end.vue
 
 # build frontend
@@ -48,9 +58,3 @@ chmod +x "$DIR/gen_rsa_keys.sh"
 chmod +x "$DIR/gen_rsa_keys.cmd"
 
 zip -r "$DIR.zip" "$DIR"
-rm -r $DIR
-
-# reset webui version
-sed -i "s/$VERSION/{VERSION}/" public/src/components/end.vue
-
-echo "done"

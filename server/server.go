@@ -19,13 +19,14 @@ type ServerSettings struct {
 }
 
 type ConfigurationJson struct {
-	Priority        int `json:"priority"`
-	ConfigVersion   int `json:"configVersion"`
-	UdpPort         int `json:"udpPort"`
-	TcpPort         int `json:"tcpPort"`
-	MaxConnections  int `json:"maxConnections"`
-	RegisterToLobby int `json:"registerToLobby"`
-	LanDiscovery    int `json:"lanDiscovery"`
+	Priority        int    `json:"priority"`
+	Affinity        string `json:"coreAffinity"`
+	ConfigVersion   int    `json:"configVersion"`
+	UdpPort         int    `json:"udpPort"`
+	TcpPort         int    `json:"tcpPort"`
+	MaxConnections  int    `json:"maxConnections"`
+	RegisterToLobby int    `json:"registerToLobby"`
+	LanDiscovery    int    `json:"lanDiscovery"`
 }
 
 type SettingsJson struct {

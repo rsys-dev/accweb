@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/assetto-corsa-web/accweb/cfg"
@@ -64,6 +65,7 @@ func StartServer(id int) error {
 	if runtime.GOOS == "linux" {
 		command = "wine"
 		args = append(args, cfg.Get().ACC.ServerExe)
+	} else if runtime.GOOS == "windows" {
 	}
 
 	serverExecutionPath := filepath.Join(cfg.Get().ConfigPath, strconv.Itoa(server.Id))
@@ -71,6 +73,7 @@ func StartServer(id int) error {
 	cmd.Stdout = logfile
 	cmd.Stderr = logfile
 	cmd.Dir = serverExecutionPath
+	logrus.Warn("Full Command: " + string(cmd.String()))
 	logrus.Warn(serverExecutionPath)
 
 	if err := cmd.Start(); err != nil {
@@ -82,6 +85,38 @@ func StartServer(id int) error {
 	setServer(server)
 
 	if runtime.GOOS == "windows" {
+		if server.Configuration.Affinity != "" {
+			logrus.Warn("Parsing Affinity...")
+			affinityMask := []byte{'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'}
+			cores := strings.Split(server.Configuration.Affinity, ",")
+			for _, core := range cores {
+				coreInt, coreErr := strconv.ParseInt(core, 10, 0)
+				if coreErr == nil {
+					affinityMask[len(affinityMask)-int(coreInt)] = '1'
+				} else {
+					logrus.WithError(coreErr).Error("Core Parse Error")
+				}
+			}
+			logrus.Warn("Parsed Affinity, generating Hex...")
+			affinityMaskInt, affinityMaskErr := strconv.ParseInt(string(affinityMask), 2, 64)
+			if affinityMaskErr == nil {
+				affinityArgs := []string{"$Process = Get-Process -Id " + strconv.Itoa(server.PID) + "; $Process.ProcessorAffinity=" + strconv.FormatInt(affinityMaskInt, 10)}
+				affinityCmd := exec.Command("PowerShell", affinityArgs...)
+				affinityCmd.Stdout = logfile
+				affinityCmd.Stderr = logfile
+				affinityErr := affinityCmd.Start()
+				if affinityErr != nil {
+					logrus.WithError(affinityErr).Error("Error set affinity")
+				} else {
+					logrus.WithField("Command", affinityCmd.String()).Info("affinity set")
+				}
+				//args = []string{"/C \"start", "/AFFINITY " + fmt.Sprintf("%x", affinityMaskInt), cfg.Get().ACC.ServerExe, "\""}
+
+				//logrus.Warn("Command generate: " + command)
+			} else {
+				logrus.WithError(affinityMaskErr).Error("AffinityMask Parse Error")
+			}
+		}
 
 		logrus.WithField("Prio", server.Configuration.Priority).Info("Prio get")
 		prioArgs := []string{"process", "where", "ProcessId=" + strconv.Itoa(server.PID), "call", "setpriority", strconv.Itoa(server.Configuration.Priority)}
@@ -92,7 +127,7 @@ func StartServer(id int) error {
 		if prioErr != nil {
 			logrus.WithError(prioErr).Error("Error set priority")
 		} else {
-			logrus.WithField("PID", prioCmd.Process.Pid).Info("Prio set")
+			logrus.WithField("Command", prioCmd.String()).Info("Prio set")
 		}
 	}
 	logrus.WithField("PID", server.PID).Info("Server started")
