@@ -8,7 +8,6 @@ type ServerSettings struct {
 	Id  int       `json:"id"`
 	PID int       `json:"pid"` // 0 = stopped, else running
 	Cmd *exec.Cmd `json:"-"`
-
 	// ACC server configuration files
 	Configuration ConfigurationJson `json:"basic"`
 	Settings      SettingsJson      `json:"settings"`
@@ -20,6 +19,7 @@ type ServerSettings struct {
 }
 
 type ConfigurationJson struct {
+	Priority        int `json:"priority"`
 	ConfigVersion   int `json:"configVersion"`
 	UdpPort         int `json:"udpPort"`
 	TcpPort         int `json:"tcpPort"`
@@ -105,15 +105,15 @@ type EntrySettings struct {
 	OverrideCarModelForCustomCar int              `json:"overrideCarModelForCustomCar"`
 	BallastKg                    int              `json:"ballastKg"`
 	Restrictor                   int              `json:"restrictor"`
-	DefaultGridPosition 		 int    		  `json:"defaultGridPosition"`
+	DefaultGridPosition          int              `json:"defaultGridPosition"`
 }
 
 type DriverSettings struct {
-	FirstName           string `json:"firstName"`
-	LastName            string `json:"lastName"`
-	ShortName           string `json:"shortName"`
-	DriverCategory      int    `json:"driverCategory"`
-	PlayerID            string `json:"playerID"`
+	FirstName      string `json:"firstName"`
+	LastName       string `json:"lastName"`
+	ShortName      string `json:"shortName"`
+	DriverCategory int    `json:"driverCategory"`
+	PlayerID       string `json:"playerID"`
 }
 
 type BopJson struct {

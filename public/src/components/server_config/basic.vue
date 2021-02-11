@@ -1,5 +1,6 @@
 <template>
     <collapsible :title="$t('title')">
+        <selection :label="$t('priority_label')" :options="priorities" v-model="priority"></selection>
         <field type="number" :label="$t('udp_label')" v-model="udpPort"></field>
         <field type="number" :label="$t('tcp_label')" v-model="tcpPort"></field>
         <field type="number" :label="$t('maxconnections_label')" v-model="maxConnections"></field>
@@ -11,12 +12,22 @@
 <script>
 import collapsible from "../collapsible.vue";
 import field from "../field.vue";
+import selection from "../selection.vue";
 import checkbox from "../checkbox.vue";
 
 export default {
-    components: {collapsible, field, checkbox},
+    components: {collapsible, field, selection, checkbox},
     data() {
         return {
+            priorities: [
+                {value: 256, label: "Realtime"},
+                {value: 128, label: "High"},
+                {value: 32768, label: "Above Normal	"},
+                {value: 32, label: "Normal"},
+                {value: 16384, label: "Below Normal"},
+                {value: 64, label: "Low"},
+            ],
+            priority: 32,
             udpPort: 9600,
             tcpPort: 9600,
             maxConnections: 10,
@@ -26,6 +37,7 @@ export default {
     },
     methods: {
         setData(data) {
+            this.priority = data.priority;
             this.udpPort = data.udpPort;
             this.tcpPort = data.tcpPort;
             this.maxConnections = data.maxConnections;
@@ -34,6 +46,7 @@ export default {
         },
         getData() {
             return {
+                priority: parseInt(this.priority),
                 udpPort: parseInt(this.udpPort),
                 tcpPort: parseInt(this.tcpPort),
                 maxConnections: parseInt(this.maxConnections),
@@ -49,6 +62,7 @@ export default {
 {
     "en": {
         "title": "Basic configuration",
+        "priority_label": "Process priority",
         "udp_label": "UDP port",
         "tcp_label": "TCP port",
         "maxconnections_label": "Max. connections",

@@ -2,8 +2,6 @@ package server
 
 import (
 	"errors"
-	"github.com/assetto-corsa-web/accweb/cfg"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -11,6 +9,9 @@ import (
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/assetto-corsa-web/accweb/cfg"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -79,6 +80,21 @@ func StartServer(id int) error {
 
 	server.start(cmd)
 	setServer(server)
+
+	if runtime.GOOS == "windows" {
+
+		logrus.WithField("Prio", server.Configuration.Priority).Info("Prio get")
+		prioArgs := []string{"process", "where", "ProcessId=" + strconv.Itoa(server.PID), "call", "setpriority", strconv.Itoa(server.Configuration.Priority)}
+		prioCmd := exec.Command("wmic", prioArgs...)
+		prioCmd.Stdout = logfile
+		prioCmd.Stderr = logfile
+		prioErr := prioCmd.Start()
+		if prioErr != nil {
+			logrus.WithError(prioErr).Error("Error set priority")
+		} else {
+			logrus.WithField("PID", prioCmd.Process.Pid).Info("Prio set")
+		}
+	}
 	logrus.WithField("PID", server.PID).Info("Server started")
 	go observeProcess(server, logfile)
 
