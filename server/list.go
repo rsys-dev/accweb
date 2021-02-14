@@ -2,12 +2,13 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/assetto-corsa-web/accweb/cfg"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"path/filepath"
 	"strconv"
 	"sync"
+
+	"github.com/assetto-corsa-web/accweb/cfg"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -105,6 +106,23 @@ func GetServerList(withPasswords bool) []ServerSettings {
 		server.Settings.AdminPassword = ""
 		server.Settings.SpectatorPassword = ""
 		list = append(list, server)
+	}
+
+	return list
+}
+
+func GetRunningServerList() []ServerSettings {
+	list := make([]ServerSettings, 0, len(serverList))
+
+	for _, server := range serverList {
+		if server.PID > 0 {
+			server.Settings.Password = ""
+			server.Settings.AdminPassword = ""
+			server.Settings.SpectatorPassword = ""
+			server.PID = 0
+			server.Configuration = ConfigurationJson{}
+			list = append(list, server)
+		}
 	}
 
 	return list

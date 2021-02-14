@@ -2,11 +2,12 @@ package api
 
 import (
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/sirupsen/logrus"
 )
 
 const (

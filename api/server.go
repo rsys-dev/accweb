@@ -1,10 +1,11 @@
 package api
 
 import (
-	"github.com/assetto-corsa-web/accweb/server"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+
+	"github.com/assetto-corsa-web/accweb/server"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -64,6 +65,10 @@ func GetServerHandler(w http.ResponseWriter, r *http.Request, claims *TokenClaim
 
 		writeResponse(w, server.GetServerById(idInt, claims.IsAdmin))
 	}
+}
+
+func GetRunningServerHandler(w http.ResponseWriter, r *http.Request) {
+	writeResponse(w, server.GetRunningServerList())
 }
 
 func GetServerStatusHandler(w http.ResponseWriter, r *http.Request) {

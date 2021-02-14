@@ -1,17 +1,18 @@
 package main
 
 import (
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/assetto-corsa-web/accweb/api"
 	"github.com/assetto-corsa-web/accweb/cfg"
 	serverList "github.com/assetto-corsa-web/accweb/server"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"strings"
-	"time"
 )
 
 const (
@@ -72,6 +73,7 @@ func setupRouter() *mux.Router {
 	router.Handle("/api/server", api.AuthMiddleware(api.CopyServerSetttingsHandler, true, false)).Methods("PUT")
 	router.Handle("/api/server", api.AuthMiddleware(api.DeleteServerHandler, true, false)).Methods("DELETE")
 	router.Handle("/api/server", api.AuthMiddleware(api.GetServerHandler, false, false)).Methods("GET")
+	router.HandleFunc("/api/server/running", api.GetRunningServerHandler).Methods("GET")
 	router.HandleFunc("/api/status", api.GetServerStatusHandler).Methods("GET")
 	router.Handle("/api/server/import", api.AuthMiddleware(api.ImportServerHandler, true, false)).Methods("POST")
 	router.Handle("/api/instance", api.AuthMiddleware(api.StartInstanceHandler, false, true)).Methods("POST")
